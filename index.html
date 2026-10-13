@@ -31,10 +31,10 @@ h2:first-child{margin-top:4px}.note{font-size:.8rem;color:#5a6475;margin:12px 4p
 .empty{text-align:center;color:#5a6475;padding:30px}
 .fav{background:linear-gradient(135deg,#fff6d6,#ffe39a);border:2px solid #b8860b;border-left:6px solid #b8860b;box-shadow:0 0 0 3px #ffd54f88,0 4px 14px #b8860b55}
 .fav .n{color:#5a3e00}.badge{display:inline-block;background:#5a3e00;color:#fff;border-radius:99px;padding:1px 8px;font-size:.7rem;margin-left:6px;vertical-align:middle}
-#fav{width:100%;margin-top:6px;padding:10px;border-radius:10px;border:0;font-size:16px;min-height:44px}
+#fb{margin:6px 0 8px;background:linear-gradient(135deg,#ffe082,#ffc107);color:#3d2a00;border-radius:12px;padding:8px 12px;font-weight:800;font-size:1.15rem;box-shadow:0 0 0 2px #fff6,0 2px 10px #0004;overflow-wrap:anywhere}#fb[hidden]{display:none}#fav{width:100%;margin-bottom:2px;padding:10px;border-radius:10px;border:0;font-size:16px;min-height:44px}
 #tabs{position:sticky;top:var(--hh,150px);z-index:4;display:flex;background:#fff;box-shadow:0 2px 6px #0002}#tabs a{flex:1;text-align:center;padding:12px 6px;min-height:48px;font-weight:700;color:#5a6475;text-decoration:none;border-bottom:3px solid transparent}#tabs a.on{color:#0b4f9c;border-bottom-color:#0b4f9c;background:#e6eefb}</style></head><body>
-<header><div class="top"><button id="back" hidden aria-label="Voltar">←</button><div style="flex:1;min-width:0"><h1 id="tt">📅 Reservas SENAI Alto Vale</h1><div id="crumb"></div></div><button id="r" aria-label="Atualizar">↻</button></div>
-<input id="q" type="search" placeholder="Buscar nome, carro, sala, cidade…"><select id="fav" aria-label="Professor favorito"></select><div id="st"></div></header>
+<header><select id="fav" aria-label="Professor favorito"></select><div id="fb" hidden></div><div class="top"><button id="back" hidden aria-label="Voltar">←</button><div style="flex:1;min-width:0"><h1 id="tt">📅 Reservas SENAI Alto Vale</h1><div id="crumb"></div></div><button id="r" aria-label="Atualizar">↻</button></div>
+<input id="q" type="search" placeholder="Buscar nome, carro, sala, cidade…"><div id="st"></div></header>
 <nav id="tabs" role="tablist"></nav><main id="m"></main>
 <script>
 const ID="17svRxELpZzvFF6RYakamXfr_g6zyvcrZkIg51TdRr8s";
@@ -80,7 +80,8 @@ const cnt=g=>g.sections.reduce((b,s)=>b+s.items.length,0);
 const FK="reservas_fav";let FAV=localStorage.getItem(FK)||"";const K=n=>T(n).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").toUpperCase();const isF=it=>FAV&&K(it.name)==FAV;
 function card(it,ctx){const f=isF(it);return `<div class="res${f?" fav":""}">${ctx?`<div class="ctx">${esc(ctx)}</div>`:""}<div class="n">${f?"⭐ ":""}${esc(it.name)}${f?'<span class="badge">Favorito</span>':""}</div><dl>${it.fields.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(T(v))}</dd>`).join("")}</dl></div>`}
 function sections(g){return g.sections.filter(s=>s.items.length).map(s=>(s.label?`<h2>${esc(s.label)}</h2>`:"")+`<div class="grid">${[...s.items].sort((a,b)=>isF(b)-isF(a)).map(i=>card(i)).join("")}</div>`).join("")}
-function route(){const m=document.getElementById("m"),q=T(document.getElementById("q").value).toLowerCase(),h=location.hash.split("/");const SECS=[["carros","🚗 Carros"],["salas","🏫 Salas"]].concat(DATA.some(t=>t.kind=="flat")?[["outros","📇 Contatos"]]:[]);let sec=SECS.some(x=>x[0]==h[1])?h[1]:"carros";const KS=t=>t.kind=="flat"?"outros":t.kind;
+function favUI(){const b=document.getElementById("fb"),o=document.querySelector(`#fav option[value="${CSS.escape(FAV)}"]`);b.hidden=!FAV||!o;if(o)b.textContent="⭐ Favorito: "+o.textContent.replace(/^⭐ /,"");if(window.sh)sh()}
+function route(){favUI();const m=document.getElementById("m"),q=T(document.getElementById("q").value).toLowerCase(),h=location.hash.split("/");const SECS=[["carros","🚗 Carros"],["salas","🏫 Salas"]].concat(DATA.some(t=>t.kind=="flat")?[["outros","📇 Contatos"]]:[]);let sec=SECS.some(x=>x[0]==h[1])?h[1]:"carros";const KS=t=>t.kind=="flat"?"outros":t.kind;
  document.getElementById("tabs").innerHTML=SECS.map(([k,l])=>`<a href="#/${k}" role="tab" aria-selected="${k==sec}" class="${k==sec?"on":""}">${l}</a>`).join("");
  const back=document.getElementById("back"),tt=document.getElementById("tt"),cr=document.getElementById("crumb");window.scrollTo(0,0);
  if(q){back.hidden=false;tt.textContent="🔎 Busca";cr.textContent="";let out=[];
@@ -104,7 +105,7 @@ let LAST=SNAP_TS;const stat=(off)=>{document.getElementById("st").textContent="�
 async function load(){const st=document.getElementById("st");st.textContent="Atualizando… (última: "+fmt(LAST)+")";try{const out=await Promise.all(SNAP.map(async t=>{let r;try{r=await fetch(`https://docs.google.com/spreadsheets/d/${ID}/export?format=csv&gid=${t.gid}`)}catch(e){r=await fetch(`https://docs.google.com/spreadsheets/d/${ID}/gviz/tq?tqx=out:csv&headers=0&gid=${t.gid}`)}if(!r.ok)throw 0;return{name:t.name,gid:t.gid,csv:await r.text()}}));LAST=Date.now();setData(out);try{localStorage.setItem(LS,JSON.stringify({ts:LAST,tabs:out}))}catch(e){}stat(false)}
 catch(e){stat(true)}}
 const LS="reservas_v2_"+SNAP.length;
-document.getElementById("q").oninput=route;document.getElementById("r").onclick=load;window.onhashchange=route;const sh=()=>document.documentElement.style.setProperty("--hh",document.querySelector("header").offsetHeight+"px");addEventListener("resize",sh);sh();
+document.getElementById("q").oninput=route;document.getElementById("r").onclick=load;window.onhashchange=route;window.sh=()=>document.documentElement.style.setProperty("--hh",document.querySelector("header").offsetHeight+"px");addEventListener("resize",sh);sh();
 let c=null;try{c=JSON.parse(localStorage.getItem(LS))}catch(e){}if(c&&c.tabs&&c.ts>=SNAP_TS){LAST=c.ts;setData(c.tabs)}else setData(SNAP);stat(false);
 if(!/[?&]offline/.test(location.search))load();
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js");
