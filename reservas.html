@@ -107,6 +107,6 @@ catch(e){stat(true)}}
 const LS="reservas_v2_"+SNAP.length;
 document.getElementById("q").oninput=route;document.getElementById("r").onclick=load;window.onhashchange=()=>route(true);window.sh=()=>document.documentElement.style.setProperty("--hh",document.querySelector("header").offsetHeight+"px");addEventListener("resize",sh);sh();
 let c=null;try{c=JSON.parse(localStorage.getItem(LS))}catch(e){}if(c&&c.tabs&&c.ts>=SNAP_TS){LAST=c.ts;setData(c.tabs)}else setData(SNAP);stat(false);
-if(!/[?&]offline/.test(location.search))load();
+let LASTTRY=0;const auto=()=>{if(/[?&]offline/.test(location.search))return;LASTTRY=Date.now();load()};auto();setInterval(()=>{if(!document.hidden)auto()},600000);document.addEventListener("visibilitychange",()=>{if(!document.hidden&&Date.now()-Math.max(LAST,LASTTRY)>600000)auto()});
 if("serviceWorker"in navigator&&location.protocol.startsWith("http")){const had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{});let rl=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(had&&!rl){rl=true;location.reload()}})}
 </script></body></html>
