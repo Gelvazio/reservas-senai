@@ -63,7 +63,7 @@ function parseTab(t){const rows=parseCSV(t.csv);const N=t.name.toUpperCase();con
     if(!g||g.key!=d){g=tab.groups.find(x=>x.key==d);if(!g){g={key:d,label:d,sub:"",shifts:{},sections:[]};tab.groups.push(g)}}
     s={label:shift+" · "+prog,items:[]};g.sections.push(s);g.shifts[shift]=1;continue}
    if(!s)continue;
-   s.items.push({name:T(r[4])&&T(r[4])!="-"?T(r[4]):T(r[1]),fields:[["🏫 Ambiente",r[5]],["📘 Curso",r[1]],["👥 Turma",r[2]],["📖 UC",r[3]]].filter(x=>T(x[1])&&T(x[1])!="-")})}
+   {const sh=(s.label.split(" · ")[0]||"").toUpperCase(),ic={MATUTINO:"🌅",VESPERTINO:"🌇",NOTURNO:"🌙",INTEGRAL:"🕘"}[sh]||"🕒",hm=r.slice(1).map(T).join(" ").match(/(\d{1,2})[:h](\d{2})\s*(?:hs?|hrs?)?\s*(?:-|–|a|as|às|até)\s*(\d{1,2})[:h](\d{2})/i),hr=hm?` · ${hm[1].padStart(2,"0")}:${hm[2]} às ${hm[3].padStart(2,"0")}:${hm[4]}`:"";s.items.push({name:T(r[4])&&T(r[4])!="-"?T(r[4]):T(r[1]),fields:[["🕒 Turno",sh?ic+" "+title(sh)+hr:hr.slice(3)],["🏫 Ambiente",r[5]],["📘 Curso",r[1]],["👥 Turma",r[2]],["📖 UC",r[3]]].filter(x=>T(x[1])&&T(x[1])!="-")})}}
   const wd=["DOMINGO","SEGUNDA","TERÇA","QUARTA","QUINTA","SEXTA","SÁBADO"];
   for(const r of rows){const m=T(r[0]).match(/^(\d\d\/\d\d)\s*-\s*(.+)$/);if(m){const g=tab.groups.find(x=>x.key==m[1]);if(g)g.sub=title(m[2])}}
   tab.groups.forEach(g=>{if(!g.sub){const [d,mo]=g.key.split("/").map(Number);const y=+((t.csv.match(/\b\d\d\/\d\d\/(20\d\d)/)||[])[1]||new Date().getFullYear());const w=["Domingo","Segunda-feira","Terça-feira","Quarta-feira","Quinta-feira","Sexta-feira","Sábado"][new Date(y,mo-1,d).getDay()];g.sub=d&&mo?w:Object.keys(g.shifts).map(title).join(", ")}})
