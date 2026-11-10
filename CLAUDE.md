@@ -11,7 +11,8 @@ HTML + CSS + JavaScript vanilla num único arquivo.
 |---|---|
 | `index.html` | Todo o app (HTML, CSS e JS inline, ~74 KB). É a página servida em `/reservas-senai/`. |
 | `reservas.html` | **Cópia idêntica** de `index.html`. Qualquer alteração deve ir nos dois arquivos (conferir com `diff -q index.html reservas.html`). |
-| `manifest.json` | Manifesto PWA (`standalone`, tema `#0b4f9c`). Hoje com `icons: []`. |
+| `favicon.svg` | Ícone do app (aba do navegador e PWA): quadrado azul `#0b4f9c` com a palavra SENAI. Não é o arquivo oficial da marca; trocar por ele se houver. |
+| `manifest.json` | Manifesto PWA (`standalone`, tema `#0b4f9c`), com `favicon.svg` como ícone. |
 | `sw.js` | Service worker. Cache `reservas-v22`, estratégia network-first com fallback para o cache. |
 
 `index.html` e `reservas.html` precisam ficar iguais. Se o service worker listar arquivos novos, ou se o
