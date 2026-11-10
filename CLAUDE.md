@@ -62,6 +62,13 @@ ao dia **seguinte**, e não ao anterior. Não rola nas atualizações automátic
 Se hoje não está em nenhuma aba, mostra a lista de semanas normal.
 O botão ← volta para a lista de semanas em `#/<secao>/w` (sem esse sufixo o redirecionamento criaria um loop).
 
+**Estatísticas (GoatCounter).** O script `gelvaziocamargo.goatcounter.com` (fim do `index.html`) conta visitas por
+dia, sem cookies. Além disso `gcFav()` envia um evento `favorito/<Nome>` com o professor favorito escolhido, **no
+máximo uma vez por dia por aparelho** (chave `reservas_gc_fav` no `localStorage`) e só quando existe favorito.
+O aviso `#fn`, abaixo do seletor, informa isso ao usuário e **não deve ser removido**: o nome é dado pessoal.
+O painel está em `https://gelvaziocamargo.goatcounter.com`. No GoatCounter é preciso permitir o domínio
+`gelvazio.github.io` nas configurações, senão as contagens são recusadas. Em `localhost` ele não conta.
+
 **Favorito.** O usuário escolhe um docente (`#fav`, guardado em `localStorage` na chave `reservas_fav`).
 Reservas dele aparecem destacadas com ⭐, e também as em que ele está de carona: o campo `CARONA` é
 texto livre, e `parts()`/`same()`/`inPool()` tentam casar nomes por heurística (palavras de parada em `STOP`,
