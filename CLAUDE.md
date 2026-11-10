@@ -54,8 +54,12 @@ seção → período (aba) → dia. Há busca de texto livre (`#q`) que atravess
 
 **Foco no dia de hoje.** Ao entrar em Carros ou Salas (`#/carros`, `#/salas`) o app abre direto o período (aba)
 que contém a data de hoje (fuso `America/Sao_Paulo`, funções `HOJE()` e `isHoje()`), via `location.replace`.
-Na grade de dias o card de hoje vem primeiro, ocupa 100% da largura (`.ptile.hoje`) e tem o selo "HOJE";
-os demais cards continuam abaixo. Se hoje não está em nenhuma aba, mostra a lista de semanas normal.
+Na grade de dias a **ordem original dos dias é mantida** (seg, ter, qua…). O card de hoje continua no lugar dele,
+ocupa 100% da largura (`.ptile.hoje`) e tem o selo "HOJE". Ao carregar, `focusHoje()` rola a página até ele,
+descontando só as barras fixas (`header` e `#tabs`) que de fato cobrirem o topo (mede `position:sticky`), e
+acrescenta espaço no fim de `#m` se a página for curta demais para rolar até ali. Assim, deslizar para cima leva
+ao dia **seguinte**, e não ao anterior. Não rola nas atualizações automáticas (`route(false)`).
+Se hoje não está em nenhuma aba, mostra a lista de semanas normal.
 O botão ← volta para a lista de semanas em `#/<secao>/w` (sem esse sufixo o redirecionamento criaria um loop).
 
 **Favorito.** O usuário escolhe um docente (`#fav`, guardado em `localStorage` na chave `reservas_fav`).
