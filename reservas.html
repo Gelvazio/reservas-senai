@@ -53,7 +53,7 @@ function parseTab(t){const rows=parseCSV(t.csv);const N=t.name.toUpperCase();con
   for(const r of rows){if(!nonEmpty(r))continue;if(T(r[0])=="DATA"){hdr=r.map(T);continue}
    if(!hdr){tab.notes.push(r.filter(T).join(" "));continue}
    if(T(r[0])&&!T(r[1])){tab.notes.push(T(r[0]));continue}
-   if(T(r[0])){const m=T(r[0]).match(/^(\d\d\/\d\d)\/\d{4}\s*\(([^)]*)\)/);g={key:T(r[0]),label:m?m[1]:T(r[0]),sub:m?m[2]:"",sections:[{label:"",items:[]}]};tab.groups.push(g)}
+   if(T(r[0])){const m=T(r[0]).match(/^(\d\d\/\d\d)\/\d{2,4}\s*\(([^)]*)\)/);g={key:T(r[0]),label:m?m[1]:T(r[0]),sub:m?m[2]:"",sections:[{label:"",items:[]}]};tab.groups.push(g)}
    if(!g||!T(r[1]))continue;
    g.sections[0].items.push({name:title(r[1]),car:T(r[2]),time:T(r[4]),dest:T(r[3]),pool:T(r[5]),fields:[["🚗 Carro",r[2]],["📍 Destino",r[3]],["🕒 Horário",r[4]],["👥 Carona",r[5]]].filter(x=>T(x[1]))})}
  }else if(classify(t.name)=="salas"){tab.kind="salas";let g=null,s=null,hdr=null;
@@ -83,7 +83,7 @@ function card(it,ctx){const f=isF(it),c=isC(it);if(it.car){const [a,b]=it.time.s
 function sections(g){return g.sections.filter(s=>s.items.length).map(s=>(s.label?`<h2>${esc(s.label)}</h2>`:"")+`<div class="grid">${[...s.items].sort((a,b)=>isF(b)-isF(a)).map(i=>card(i)).join("")}</div>`).join("")}
 function favUI(){const b=document.getElementById("fb"),o=document.querySelector(`#fav option[value="${CSS.escape(FAV)}"]`);b.hidden=!FAV||!o;if(o)b.textContent="⭐ Favorito: "+o.textContent.replace(/^⭐ /,"");if(window.sh)sh()}
 const HOJE=()=>{const p=new Intl.DateTimeFormat('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date()).split('/');return{dm:p[0]+'/'+p[1],y:p[2]}};
-const isHoje=g=>{const h=HOJE();return g.label==h.dm&&(!/\d{4}/.test(g.key)||g.key.indexOf(h.dm+'/'+h.y)==0)};
+const isHoje=g=>{const h=HOJE();return g.label==h.dm&&(()=>{const m=g.key.match(/^\d\d\/\d\d\/(\d{2,4})/);return!m||(m[1].length==2?'20'+m[1]:m[1])==h.y})()};
 function route(scroll){favUI();const m=document.getElementById("m"),q=T(document.getElementById("q").value).toLowerCase(),h=location.hash.split("/");const SECS=[["carros","🚗 Carros"],["salas","🏫 Salas"]].concat(DATA.some(t=>t.kind=="flat")?[["outros","📇 Contatos"]]:[]);let sec=SECS.some(x=>x[0]==h[1])?h[1]:"carros";const KS=t=>t.kind=="flat"?"outros":t.kind;
  document.getElementById("tabs").innerHTML=SECS.map(([k,l])=>`<a href="#/${k}" role="tab" aria-selected="${k==sec}" class="${k==sec?"on":""}">${l}</a>`).join("");
  const back=document.getElementById("back"),tt=document.getElementById("tt"),cr=document.getElementById("crumb");if(scroll!==false)window.scrollTo(0,0);
@@ -93,11 +93,12 @@ function route(scroll){favUI();const m=document.getElementById("m"),q=T(document
  const ti=h[2]=="t"?+h[3]:-1,t=DATA[ti]&&KS(DATA[ti])==sec?DATA[ti]:null;
  if(!t&&!h[2]){const wi=DATA.findIndex(x=>KS(x)==sec&&x.groups.some(isHoje));if(wi>=0){location.replace("#/"+sec+"/t/"+wi);return}}
  if(!t){back.hidden=true;tt.textContent="📅 Reservas SENAI Alto Vale";cr.textContent="Escolha a semana";
-  m.innerHTML=`<div class="grid">${DATA.map((t,i)=>KS(t)!=sec?"":`<a class="tile wtile w-${sec}" href="#/${sec}/t/${i}"><b>${t.kind=="carros"?"🚗":t.kind=="salas"?"🏫":"📇"} ${esc(t.name)}</b><div class="pills">${t.kind=="flat"?"":`<span class="pill">📅 ${t.groups.length} dias</span>`}<span class="pill">${t.kind=="carros"?"🚗":t.kind=="salas"?"🏫":"👤"} ${t.count} ${t.kind=="flat"?"contatos":"reservas"}</span></div>${t.kind=="flat"?"":`<div class="irow">🗓️ ${esc(t.groups[0].label)} → ${esc(t.groups[t.groups.length-1].label)}</div>`}</a>`).join("")}</div>`;return}
+  m.innerHTML=`<div class="grid">${DATA.map((t,i)=>KS(t)!=sec?"":`<a class="tile wtile w-${sec}" href="#/${sec}/t/${i}"><b>${t.kind=="carros"?"🚗":t.kind=="salas"?"🏫":"📇"} ${esc(t.name)}</b><div class="pills">${t.kind=="flat"?"":`<span class="pill">📅 ${t.groups.length} dias</span>`}<span class="pill">${t.kind=="carros"?"🚗":t.kind=="salas"?"🏫":"👤"} ${t.count} ${t.kind=="flat"?"contatos":"reservas"}</span></div>${t.kind=="flat"||!t.groups.length?"":`<div class="irow">🗓️ ${esc(t.groups[0].label)} → ${esc(t.groups[t.groups.length-1].label)}</div>`}</a>`).join("")}</div>`;return}
  back.hidden=false;tt.textContent=t.name;
  const notes=t.notes.length?t.notes.map(n=>`<div class="note">ℹ️ ${esc(n)}</div>`).join(""):"";
  const gi=h[4]=="d"?decodeURIComponent(h[5]||""):null,g=t.groups.find(x=>x.key==gi);
  if(t.kind=="flat"){cr.textContent=t.count+" item(ns)";m.innerHTML=sections(t.groups[0])+notes;return}
+ if(!g&&!t.groups.length){cr.textContent="";m.innerHTML=`<div class="empty">Sem reservas nesta semana.</div>`+notes;return}
  if(!g){cr.textContent="Escolha um dia";m.innerHTML=`<div class="grid">${[...t.groups].sort((a,b)=>isHoje(b)-isHoje(a)).map(g=>`<a class="tile ptile p-${sec}${t.kind=="carros"?" dtile":""}${isHoje(g)?" hoje":""}" href="#/${sec}/t/${ti}/d/${encodeURIComponent(g.key)}"><b>📆 ${esc(g.label)}${g.sections.some(s=>s.items.some(isF))?" ⭐":""}${isHoje(g)?'<span class="hojeb">HOJE</span>':""}</b><div class="irow">🗓️ ${esc(g.sub)}</div><div class="pills"><span class="pill">${t.kind=="carros"?"🚗":"🏫"} ${cnt(g)} reservas</span></div>${g.sections.flatMap(s=>s.items.filter(isF)).map(i=>`<div class="fwrap">${card(i)}</div>`).join("")}</a>`).join("")}</div>`+notes;return}
  cr.textContent=g.label+(g.sub?" · "+g.sub:"")+" · "+cnt(g)+" reserva(s)";m.innerHTML=sections(g)}
 document.getElementById("back").onclick=()=>{if(T(document.getElementById("q").value)){document.getElementById("q").value="";route();return}const h=location.hash.split("/");location.hash=h.length>4?h.slice(0,4).join("/"):"#/"+(h[1]||"carros")+"/w"};
