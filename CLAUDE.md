@@ -51,6 +51,12 @@ Abas de tempo de deslocamento são ignoradas. O formato esperado do nome é, por
 **Interface.** Navegação por hash (`#/carros`, `#/salas`, `#/carros/t/<aba>/d/<dia>`), três níveis:
 seção → período (aba) → dia. Há busca de texto livre (`#q`) que atravessa todas as abas da seção atual.
 
+**Foco no dia de hoje.** Ao entrar em Carros ou Salas (`#/carros`, `#/salas`) o app abre direto o período (aba)
+que contém a data de hoje (fuso `America/Sao_Paulo`, funções `HOJE()` e `isHoje()`), via `location.replace`.
+Na grade de dias o card de hoje vem primeiro, ocupa 100% da largura (`.ptile.hoje`) e tem o selo "HOJE";
+os demais cards continuam abaixo. Se hoje não está em nenhuma aba, mostra a lista de semanas normal.
+O botão ← volta para a lista de semanas em `#/<secao>/w` (sem esse sufixo o redirecionamento criaria um loop).
+
 **Favorito.** O usuário escolhe um docente (`#fav`, guardado em `localStorage` na chave `reservas_fav`).
 Reservas dele aparecem destacadas com ⭐, e também as em que ele está de carona: o campo `CARONA` é
 texto livre, e `parts()`/`same()`/`inPool()` tentam casar nomes por heurística (palavras de parada em `STOP`,
